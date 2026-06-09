@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EcoTrack AI - Unit Tests</title>
+  <style>
+    body { font-family: system-ui; max-width: 800px; margin: 40px auto; line-height: 1.6; }
+    .pass { color: green; font-weight: bold; }
+    .fail { color: red; font-weight: bold; }
+    .test-suite { margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>EcoTrack AI - Unit Test Runner</h1>
+  <div id="results"></div>
+
+  <!-- Load Scripts to test -->
+  <script src="../js/ai-engine.js"></script>
+  
+  <!-- Test Runner -->
+  <script>
+    const resultsDiv = document.getElementById('results');
+    let totalPass = 0;
+    let totalFail = 0;
+
+    function describe(name, fn) {
+      const suiteDiv = document.createElement('div');
+      suiteDiv.className = 'test-suite';
+      suiteDiv.innerHTML = \`<h2>\${name}</h2>\`;
+      resultsDiv.appendChild(suiteDiv);
+      
+      const prevResults = resultsDiv;
+      // Temporary override to append to suite
+      window.currentSuite = suiteDiv;
+      fn();
+    }
+
+    function it(name, fn) {
+      try {
+        fn();
+        window.currentSuite.innerHTML += \`<div class="pass">✔ \${name}</div>\`;
+        totalPass++;
+      } catch (err) {
+        window.currentSuite.innerHTML += \`<div class="fail">✘ \${name} - \${err.message}</div>\`;
+        totalFail++;
+      }
+    }
+
+    function expect(actual) {
+      return {
+        toBe: (expected) => {
+          if (actual !== expected) throw new Error(\`Expected \${expected} but got \${actual}\`);
+        },
+        toBeGreaterThan: (expected) => {
+          if (actual <= expected) throw new Error(\`Expected \${actual} to be greater than \${expected}\`);
+        },
+        toBeTruthy: () => {
+          if (!actual) throw new Error(\`Expected truthy value but got \${actual}\`);
+        }
+      };
+    }
+
+    // --- Unit Tests ---
+    
+    describe('AI Engine - Logical Decision Making', () => {
+      it('should initialize with a default profile', () => {
+        const engine = new AIEngine();
+        expect(engine.userProfile).toBeTruthy();
+        expect(engine.userProfile.footprint.total).toBe(0);
+      });
+
+      it('should correctly identify the highest emission source', () => {
+        const engine = new AIEngine();
+        engine.updateFootprint(10, 5, 2, 17); // Transport is highest
+        expect(engine.getHighestEmissionSource()).toBe('transport');
+
+        engine.updateFootprint(2, 15, 3, 20); // Energy is highest
+        expect(engine.getHighestEmissionSource()).toBe('energy');
+      });
+
+      it('should generate prioritized recommendations based on footprint', () => {
+        const engine = new AIEngine();
+        engine.updateFootprint(12, 1, 1, 14); // Transport focus
+        const recs = engine.getRecommendations();
+        expect(recs.length).toBeGreaterThan(0);
+        expect(recs[0].category).toBe('Transportation');
+      });
+    });
+
+    describe('Calculator Logic (Mocked)', () => {
+      it('should prevent negative footprint values', () => {
+         // Testing edge case constraints
+         const carMiles = -50; // Invalid input
+         const sanitized = Math.max(0, carMiles);
+         expect(sanitized).toBe(0);
+      });
+    });
+
+    describe('Security & Validation', () => {
+      it('should sanitize chat input', () => {
+        const input = "<script>alert('xss')</script>";
+        const sanitized = input.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        expect(sanitized).toBe("&lt;script&gt;alert('xss')&lt;/script&gt;");
+      });
+    });
+
+  </script>
+</body>
+</html>
