@@ -382,7 +382,7 @@ function renderRecommendations() {
   container.innerHTML = '';
 
   recs.forEach(rec => {
-    let badgeClass = rec.difficulty === 'Easy' ? 'badge-green' : rec.difficulty === 'Medium' ? 'badge-blue' : 'badge-accent';
+    let badgeClass = rec.priority === 'High Priority' ? 'badge-accent' : rec.priority === 'Medium Priority' ? 'badge-blue' : 'badge-green';
 
     container.innerHTML += `
       <div class="rec-card glass">
@@ -391,7 +391,7 @@ function renderRecommendations() {
           <div style="flex:1">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                <h3 style="margin:0">${rec.title}</h3>
-               <span class="badge ${badgeClass}" style="padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; border: 1px solid currentColor;">${rec.difficulty}</span>
+               <span class="badge ${badgeClass}" style="padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; border: 1px solid currentColor;">${rec.priority}</span>
             </div>
             <span class="rec-category">${rec.category}</span>
           </div>

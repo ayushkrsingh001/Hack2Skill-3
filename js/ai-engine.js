@@ -10,18 +10,16 @@ class AIEngine {
 
   loadProfile() {
     const defaultProfile = {
-      footprint: {
-        transport: 0,
-        energy: 0,
-        lifestyle: 0,
-        total: 0
-      },
+      footprint: { transport: 0, energy: 0, lifestyle: 0, total: 0 },
       preferences: {},
-      history: []
+      history: [],
+      score: 50,
+      conversationState: { step: 0, context: 'initial' },
+      roadmap: null
     };
     try {
       const saved = localStorage.getItem('ecotrack_profile');
-      return saved ? JSON.parse(saved) : defaultProfile;
+      return saved ? { ...defaultProfile, ...JSON.parse(saved) } : defaultProfile;
     } catch {
       return defaultProfile;
     }
@@ -33,7 +31,16 @@ class AIEngine {
 
   updateFootprint(transport, energy, lifestyle, total) {
     this.userProfile.footprint = { transport, energy, lifestyle, total };
+    this.calculateSustainabilityScore();
+    this.generateRoadmap();
     this.saveProfile();
+  }
+
+  calculateSustainabilityScore() {
+    const fp = this.userProfile.footprint;
+    // Base logic: 0 total = 100 score. Avg is around 15 tons/year.
+    let score = 100 - (fp.total * 4);
+    this.userProfile.score = Math.max(0, Math.min(100, Math.round(score)));
   }
 
   // Detect the biggest source of carbon emissions
@@ -62,10 +69,8 @@ class AIEngine {
         category: 'Transportation',
         icon: '🚲',
         iconBg: 'rgba(0,200,83,0.15)',
-        reasoning: 'Your transport emissions are your highest contributor. Biking for trips under 5 miles is the most effective way to reduce this quickly.',
-        impactCO2: 0.8,
-        impactMoney: 350,
-        action: 'Start biking twice a week'
+        reasoning: 'Transportation accounts for the majority of your footprint. Biking for short trips under 5 miles is the most effective way to reduce this quickly.',
+        impactCO2: 0.8, impactMoney: 350, priority: 'High Priority', action: 'Start biking twice a week'
       });
       recommendations.push({
         id: 'rec_transport_2',
@@ -73,10 +78,8 @@ class AIEngine {
         category: 'Transportation',
         icon: '🚌',
         iconBg: 'rgba(0,145,234,0.15)',
-        reasoning: 'Sharing rides or taking transit can cut your commute emissions by 50%.',
-        impactCO2: 1.2,
-        impactMoney: 500,
-        action: 'Use public transit'
+        reasoning: 'Sharing rides or taking transit cuts your commute emissions by 50%.',
+        impactCO2: 1.2, impactMoney: 500, priority: 'Medium Priority', action: 'Use public transit'
       });
     }
 
@@ -87,10 +90,8 @@ class AIEngine {
         category: 'Energy',
         icon: '💡',
         iconBg: 'rgba(245,158,11,0.15)',
-        reasoning: 'Your energy usage is high. LEDs use 75% less energy than incandescent bulbs.',
-        impactCO2: 0.5,
-        impactMoney: 150,
-        action: 'Upgrade bulbs'
+        reasoning: 'Energy usage is high. LEDs use 75% less energy than incandescent bulbs.',
+        impactCO2: 0.5, impactMoney: 150, priority: 'High Priority', action: 'Upgrade bulbs'
       });
       recommendations.push({
         id: 'rec_energy_2',
@@ -98,10 +99,8 @@ class AIEngine {
         category: 'Energy',
         icon: '🌡️',
         iconBg: 'rgba(0,229,255,0.15)',
-        reasoning: 'Optimizing heating/cooling can significantly lower energy emissions without sacrificing comfort.',
-        impactCO2: 0.9,
-        impactMoney: 200,
-        action: 'Install smart thermostat'
+        reasoning: 'Optimizing heating/cooling significantly lowers energy emissions without sacrificing comfort.',
+        impactCO2: 0.9, impactMoney: 200, priority: 'Medium Priority', action: 'Install smart thermostat'
       });
     }
 
@@ -113,9 +112,7 @@ class AIEngine {
         icon: '🥗',
         iconBg: 'rgba(0,200,83,0.15)',
         reasoning: 'Diet contributes heavily to your footprint. Reducing meat intake is a fast way to lower it.',
-        impactCO2: 0.5,
-        impactMoney: 100,
-        action: 'Plan vegetarian meals'
+        impactCO2: 0.5, impactMoney: 100, priority: 'High Priority', action: 'Plan vegetarian meals'
       });
       recommendations.push({
         id: 'rec_life_2',
@@ -124,9 +121,7 @@ class AIEngine {
         icon: '🛍️',
         iconBg: 'rgba(139,92,246,0.15)',
         reasoning: 'Shopping emissions are high. Buying used items reduces manufacturing demand.',
-        impactCO2: 0.3,
-        impactMoney: 400,
-        action: 'Shop thrift stores'
+        impactCO2: 0.3, impactMoney: 400, priority: 'Medium Priority', action: 'Shop thrift stores'
       });
     }
 
@@ -139,47 +134,59 @@ class AIEngine {
         icon: '🚿',
         iconBg: 'rgba(0,145,234,0.15)',
         reasoning: 'Even with a low footprint, saving hot water reduces energy usage.',
-        impactCO2: 0.2,
-        impactMoney: 50,
-        action: 'Cut shower by 2 mins'
+        impactCO2: 0.2, impactMoney: 50, priority: 'Low Priority', action: 'Cut shower by 2 mins'
       });
     }
 
     return recommendations.slice(0, 5); // Return top 5
   }
 
-  // Contextual Chat Assistant
+  generateRoadmap() {
+    this.userProfile.roadmap = {
+      plan30Day: "Focus on easy wins: Replace 5 incandescent bulbs with LEDs. Try 1 meatless day per week.",
+      plan90Day: "Habit building: Switch 2 commutes per week to public transit or cycling. Reduce food waste by 50%.",
+      plan6Month: "Major changes: Consider installing a smart thermostat. Transition to a 50% plant-based diet.",
+      predictedReduction: (this.userProfile.footprint.total * 0.25).toFixed(1) // Predict 25% reduction
+    };
+  }
+
+  // Contextual Chat Assistant with memory
   getChatResponse(userInput) {
     const input = userInput.toLowerCase();
     const highestSource = this.getHighestEmissionSource();
     
     this.userProfile.history.push({ role: 'user', content: userInput });
-    this.saveProfile();
-
-    let reply = "I'm your EcoTrack AI assistant. I can help you find ways to reduce your footprint!";
     
-    // Logic based on highest source and user input
-    if (input.includes('how') && input.includes('reduce')) {
-      if (highestSource === 'transport') {
-        reply = "Based on your calculator results, transportation is your biggest emission source. I recommend focusing on biking for short trips or taking public transit. Would you like a personalized transit plan?";
-      } else if (highestSource === 'energy') {
-        reply = "Energy use is your largest footprint contributor. Start by upgrading to LED bulbs and adjusting your thermostat. Shall we look at renewable energy providers in your area?";
+    let reply = "";
+
+    // Context-aware state machine
+    if (this.userProfile.conversationState.step === 1) {
+      if (input.includes('yes') || input.includes('sure')) {
+        reply = "Excellent! I've added this to your 30-Day Plan. Start by looking up transit routes tonight. What's your next biggest concern?";
+        this.userProfile.conversationState = { step: 0, context: 'general' };
       } else {
-        reply = "Lifestyle choices (like diet and shopping) are your main footprint drivers. Starting with 'Meatless Mondays' is a great first step. Want some vegetarian recipe ideas?";
+        reply = "No problem. We can look at easier wins. How about trying carpooling or simply ensuring your tires are properly inflated (saves 3% fuel)?";
+        this.userProfile.conversationState = { step: 0, context: 'general' };
       }
-    } else if (input.includes('yes') || input.includes('sure')) {
-      reply = "Great! I've added a new action item to your goals on the Dashboard. Let's tackle this together. 🌱";
-    } else if (input.includes('car') || input.includes('drive')) {
-      reply = "Driving is a major emissions source. Keeping your tires properly inflated can improve gas mileage by up to 3%, saving money and reducing CO₂!";
-    } else if (input.includes('food') || input.includes('diet')) {
-      reply = "Food accounts for 10-30% of a household's footprint. Eating locally sourced, seasonal plant-based foods makes the biggest impact.";
     } else {
-      const genericReplies = [
-        "Did you know? Switching to LED bulbs can reduce your lighting energy use by up to 75%!",
-        "Consider this! Fixing a dripping faucet can save up to 3,000 gallons of water per year.",
-        "Fun fact! Public transit produces about 45% less CO₂ per mile than a single-occupancy car."
-      ];
-      reply = genericReplies[Math.floor(Math.random() * genericReplies.length)];
+      if (input.includes('car') || input.includes('drive') || input.includes('travel')) {
+        reply = "Transportation contributes significantly to your emissions. Would you be able to switch 2 days per week to public transport or biking?";
+        this.userProfile.conversationState = { step: 1, context: 'transport_followup' };
+      } else if (input.includes('how') && input.includes('reduce')) {
+        reply = \`Since \${highestSource} accounts for the largest part of your footprint, let's focus there. Want to see your personalized 30-day reduction roadmap?\`;
+      } else if (input.includes('yes') && this.userProfile.roadmap) {
+         reply = \`Here is your 30-Day Plan: \${this.userProfile.roadmap.plan30Day}\`;
+      } else if (input.includes('plan') || input.includes('roadmap')) {
+        this.generateRoadmap();
+        reply = \`Your 6-Month Roadmap:\\n\\n30-Day: \${this.userProfile.roadmap.plan30Day}\\n90-Day: \${this.userProfile.roadmap.plan90Day}\\n6-Month: \${this.userProfile.roadmap.plan6Month}\\n\\nEstimated CO₂ reduction: \${this.userProfile.roadmap.predictedReduction} tons.\`;
+      } else {
+        const genericReplies = [
+          "Did you know? Switching to LED bulbs can reduce your lighting energy use by up to 75%!",
+          "Consider this! Fixing a dripping faucet can save up to 3,000 gallons of water per year.",
+          "Fun fact! Public transit produces about 45% less CO₂ per mile than a single-occupancy car."
+        ];
+        reply = genericReplies[Math.floor(Math.random() * genericReplies.length)];
+      }
     }
 
     this.userProfile.history.push({ role: 'assistant', content: reply });
