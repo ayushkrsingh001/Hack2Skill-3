@@ -20,8 +20,8 @@
   --bg-card: rgba(255, 255, 255, 0.75);
   --bg-glass: rgba(255, 255, 255, 0.15);
   --text: #1a2332;
-  --text-secondary: #5a6a7a;
-  --text-muted: #8a9bab;
+  --text-secondary: #455565;
+  --text-muted: #5c6d7a;
   --border: rgba(0, 0, 0, 0.08);
   --shadow: rgba(0, 0, 0, 0.08);
 
@@ -31,7 +31,7 @@
   --dark-card: rgba(16, 29, 53, 0.8);
   --dark-glass: rgba(16, 29, 53, 0.5);
   --dark-text: #e8ecf1;
-  --dark-text-secondary: #8a9bab;
+  --dark-text-secondary: #9baebc;
   --dark-border: rgba(255, 255, 255, 0.08);
 
   /* Spacing */

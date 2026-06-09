@@ -1,0 +1,20 @@
+{
+  "name": "ecotrack-ai",
+  "version": "1.0.0",
+  "description": "AI-powered carbon footprint tracking platform",
+  "main": "index.js",
+  "scripts": {
+    "dev": "serve . -l 3000",
+    "start": "serve . -l 3000"
+  },
+  "keywords": [
+    "hackathon",
+    "sustainability",
+    "ai"
+  ],
+  "author": "Ayush",
+  "license": "ISC",
+  "dependencies": {
+    "serve": "^14.2.4"
+  }
+}

@@ -72,7 +72,7 @@ PAGES.contact = `
           <div class="contact-info-item"><div class="contact-icon">📧</div><div><strong>Email</strong><p style="color:var(--text-secondary);font-size:0.9rem">hello@ecotrack.ai</p></div></div>
           <div class="contact-info-item"><div class="contact-icon">📍</div><div><strong>Location</strong><p style="color:var(--text-secondary);font-size:0.9rem">San Francisco, CA</p></div></div>
           <div class="contact-info-item"><div class="contact-icon">📞</div><div><strong>Phone</strong><p style="color:var(--text-secondary);font-size:0.9rem">+1 (555) 123-4567</p></div></div>
-          <div style="margin-top:var(--space-xl)"><h4 style="font-weight:600;margin-bottom:var(--space-md)">Follow Us</h4><div class="footer-socials"><a class="footer-social-link" href="#">𝕏</a><a class="footer-social-link" href="#">in</a><a class="footer-social-link" href="#">📘</a><a class="footer-social-link" href="#">📸</a></div></div>
+          <div style="margin-top:var(--space-xl)"><h4 style="font-weight:600;margin-bottom:var(--space-md)">Follow Us</h4><div class="footer-socials"><a class="footer-social-link" href="#" aria-label="Twitter" rel="noopener noreferrer">𝕏</a><a class="footer-social-link" href="#" aria-label="LinkedIn" rel="noopener noreferrer">in</a><a class="footer-social-link" href="#" aria-label="Facebook" rel="noopener noreferrer">📘</a><a class="footer-social-link" href="#" aria-label="Instagram" rel="noopener noreferrer">📸</a></div></div>
         </div>
         <div class="contact-form-card glass">
           <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:var(--space-lg)">Send a Message</h3>
@@ -88,7 +88,7 @@ PAGES.contact = `
       <div class="newsletter-section glass" style="margin-top:var(--space-2xl)">
         <h3 style="font-family:var(--font-display);font-weight:700">🌍 Stay Updated</h3>
         <p style="color:var(--text-secondary);font-size:0.95rem">Subscribe to our newsletter for weekly eco-tips and sustainability insights.</p>
-        <form class="newsletter-form" onsubmit="event.preventDefault();alert('Subscribed! 🎉')"><input class="form-input" type="email" placeholder="Enter your email" required><button class="btn btn-primary" type="submit">Subscribe</button></form>
+        <form class="newsletter-form" onsubmit="event.preventDefault();alert('Subscribed! 🎉')"><input class="form-input" type="email" placeholder="Enter your email" aria-label="Email address for newsletter" required><button class="btn btn-primary" type="submit">Subscribe</button></form>
       </div>
     </div>
   </section>

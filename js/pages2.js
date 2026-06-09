@@ -53,7 +53,20 @@ PAGES.dashboard = `
         <button class="btn btn-accent btn-sm">📊 Export Report</button>
       </div>
       <div class="dashboard-grid">
-        <div class="dash-stat glass"><div class="dash-stat-icon" style="background:rgba(0,200,83,0.15);color:var(--primary)">🌍</div><h4>4.2t</h4><p>Carbon Footprint</p><div class="trend trend-down">↓ 12% from last month</div></div>
+        <div class="dash-stat glass" style="grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding: var(--space-2xl);">
+          <div>
+            <h3 style="font-family: var(--font-display); font-size: 1.5rem;">Overall Sustainability Score</h3>
+            <p style="color: var(--text-secondary); margin-top: 5px;">Based on your Transport, Energy, and Lifestyle metrics.</p>
+          </div>
+          <div style="position: relative; width: 100px; height: 100px;">
+            <svg viewBox="0 0 36 36" style="width:100%; height:100%;">
+              <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--border)" stroke-width="3"/>
+              <path id="scoreRing" stroke-dasharray="50, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--primary)" stroke-width="3" style="transition: stroke-dasharray 1s ease;"/>
+            </svg>
+            <div id="sustainabilityScore" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; font-size: 1.5rem; color: var(--primary);">50</div>
+          </div>
+        </div>
+        <div class="dash-stat glass"><div class="dash-stat-icon" style="background:rgba(0,200,83,0.15);color:var(--primary)">🌍</div><h4><span id="dashTotalValue">4.2</span>t</h4><p>Carbon Footprint</p><div class="trend trend-down">↓ 12% from last month</div></div>
         <div class="dash-stat glass"><div class="dash-stat-icon" style="background:rgba(0,145,234,0.15);color:var(--secondary)">⚡</div><h4>780</h4><p>Eco Points</p><div class="trend trend-down">↑ 85 this week</div></div>
         <div class="dash-stat glass"><div class="dash-stat-icon" style="background:rgba(0,229,255,0.15);color:var(--accent)">🏆</div><h4>7/12</h4><p>Badges Earned</p><div class="trend" style="color:var(--accent)">2 in progress</div></div>
         <div class="dash-stat glass"><div class="dash-stat-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b">🎯</div><h4>68%</h4><p>Goal Progress</p><div class="trend trend-down">On track</div></div>
@@ -98,8 +111,14 @@ PAGES.recommendations = `
           <!-- Populated dynamically by ai-engine.js via renderRecommendations() -->
         </div>
         <div class="challenge-sidebar">
+          <div class="glass" style="padding: var(--space-xl); margin-bottom: var(--space-xl); border-top: 4px solid var(--accent);">
+            <h3 style="font-family:var(--font-display);font-weight:700">🗺️ Your AI Reduction Roadmap</h3>
+            <div id="aiRoadmap" style="margin-top: 15px; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+              <p>Calculate your footprint to generate your personalized AI Roadmap.</p>
+            </div>
+          </div>
           <div class="daily-challenge glass"><h3 style="font-family:var(--font-display);font-weight:700">🎯 Daily Challenge</h3><p style="font-size:0.9rem;color:var(--text-secondary);margin:var(--space-md) 0">Take public transit or walk instead of driving today</p><div class="challenge-timer" id="challengeTimer">23:59:59</div><button class="btn btn-primary btn-sm" style="width:100%;justify-content:center">Accept Challenge</button></div>
-          <div class="glass" style="padding:var(--space-xl)"><h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:var(--space-lg)">🔥 Streak</h3><div style="text-align:center"><div style="font-size:2.5rem;font-weight:800;color:var(--primary)">7</div><p style="color:var(--text-muted);font-size:0.85rem">days in a row</p></div></div>
+          <div class="glass" style="padding:var(--space-xl); margin-top: var(--space-xl)"><h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:var(--space-lg)">🔥 Streak</h3><div style="text-align:center"><div style="font-size:2.5rem;font-weight:800;color:var(--primary)">7</div><p style="color:var(--text-muted);font-size:0.85rem">days in a row</p></div></div>
         </div>
       </div>
     </div>

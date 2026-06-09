@@ -166,6 +166,28 @@ function calcFootprint() {
   if (monthly) monthly.textContent = (total * 1000 / 12).toFixed(0);
   if (yearly) yearly.textContent = total.toFixed(1);
 
+  // Update UI Elements
+  if(document.getElementById('scoreNum')) {
+    document.getElementById('scoreNum').innerText = total;
+  }
+  
+  // Dashboard Updates
+  if(document.getElementById('dashTotalValue')) {
+    document.getElementById('dashTotalValue').innerText = total;
+  }
+
+  // Update Sustainability Score Ring on Dashboard
+  if(document.getElementById('sustainabilityScore') && window.ecoAI) {
+    const score = window.ecoAI.userProfile.score || 50;
+    document.getElementById('sustainabilityScore').innerText = score;
+    // Calculate stroke-dasharray based on score (max is 100, full circumference is 100)
+    const ring = document.getElementById('scoreRing');
+    if(ring) {
+      ring.style.strokeDasharray = \`\${score}, 100\`;
+      ring.style.stroke = score > 80 ? 'var(--primary)' : score > 50 ? '#f59e0b' : '#ef4444';
+    }
+  }
+
   // Save to AI Engine
   if (window.ecoAI) {
     window.ecoAI.updateFootprint(transport, energy, lifestyle, total);
@@ -360,12 +382,17 @@ function renderRecommendations() {
   container.innerHTML = '';
 
   recs.forEach(rec => {
+    let badgeClass = rec.difficulty === 'Easy' ? 'badge-green' : rec.difficulty === 'Medium' ? 'badge-blue' : 'badge-accent';
+
     container.innerHTML += `
       <div class="rec-card glass">
         <div class="rec-header">
           <div class="rec-icon" style="background:${rec.iconBg}">${rec.icon}</div>
-          <div>
-            <h3>${rec.title}</h3>
+          <div style="flex:1">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+               <h3 style="margin:0">${rec.title}</h3>
+               <span class="badge ${badgeClass}" style="padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; border: 1px solid currentColor;">${rec.difficulty}</span>
+            </div>
             <span class="rec-category">${rec.category}</span>
           </div>
         </div>
@@ -378,6 +405,18 @@ function renderRecommendations() {
       </div>
     `;
   });
+
+  // Render Roadmap
+  const roadmapContainer = document.getElementById('aiRoadmap');
+  if (roadmapContainer && window.ecoAI.userProfile.roadmap) {
+    const rm = window.ecoAI.userProfile.roadmap;
+    roadmapContainer.innerHTML = `
+      <div style="margin-bottom: 10px;"><strong>30 Days:</strong> ${rm.plan30Day}</div>
+      <div style="margin-bottom: 10px;"><strong>90 Days:</strong> ${rm.plan90Day}</div>
+      <div style="margin-bottom: 10px;"><strong>6 Months:</strong> ${rm.plan6Month}</div>
+      <div style="color: var(--primary); font-weight: bold; margin-top: 15px;">Target Reduction: ${rm.predictedReduction} tons CO₂/yr</div>
+    `;
+  }
 }
 
 // ===== Auth Modal =====
